@@ -1,0 +1,241 @@
+# Builtin Configurations(DO NOT CHANGE THESE CONFIGURATIONS unless you know exactly what you are doing)
+
+enable_modelarts: False
+data_url: ""
+train_url: ""
+checkpoint_url: ""
+data_path: "/cache/data"
+output_path: "/cache/train"
+load_path: "/cache/eval_checkpoint_path"
+device_target: Ascend
+enable_profiling: False
+
+# ==============================================================================
+# config
+seed: 0
+
+img_width: 1280
+img_height: 768
+keep_ratio: True
+flip_ratio: 0.5
+expand_ratio: 1.0
+without_bg_loss: True
+
+# anchor
+anchor_scales: [32, 64, 128, 256, 512]
+anchor_ratios: [0.5, 1.0, 2.0]
+anchor_strides: [16,]
+num_anchors: 15
+
+# resnet
+resnet_block: [3, 4, 23, 3]
+resnet_in_channels: [64, 256, 512, 1024]
+resnet_out_channels: [256, 512, 1024, 2048]
+resnet_out_features: ["layer3"]
+backbone_freeze: false
+backbone: 'resnet_v1_101'
+backbone_freeze_at: 2
+
+# rpn
+rpn_in_channels: 1024
+rpn_feat_channels: 1024
+rpn_loss_cls_weight: 1.0
+rpn_loss_reg_weight: 1.0
+rpn_cls_out_channels: 1
+rpn_target_means: [0., 0., 0., 0.]
+rpn_target_stds: [1.0, 1.0, 1.0, 1.0]
+rpn_backward_scale: 0.0
+rpn_enable_decouple: True
+rpn_freeze: False
+
+# bbox_assign_sampler
+neg_iou_thr: 0.3
+pos_iou_thr: 0.7
+min_pos_iou: 0.3
+num_gts: 128
+num_expected_neg: 256
+num_expected_pos: 128
+
+# proposal
+activate_num_classes: 2
+use_sigmoid_cls: True
+
+# roi_align
+roi_layer: {type: 'RoIAlign', out_size: 7, sample_num: 2}
+roi_align_out_channels: 1024
+roi_align_featmap_strides: 16
+#roi_align_finest_scale: 56
+roi_align_finest_scale: 224
+# roi_sample_num: 640   _C.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
+roi_sample_num: 512
+roi_backward_scale: 0.01
+roi_enable_decouple: True
+roi_head_freeze: True
+# bbox_assign_sampler_stage2
+neg_iou_thr_stage2: 0.5
+pos_iou_thr_stage2: 0.5
+min_pos_iou_stage2: 0.5
+num_bboxes_stage2: 2000
+num_expected_pos_stage2: 128
+num_expected_neg_stage2: 384
+num_expected_total_stage2: 512
+
+# rcnn
+rcnn_num_layers: 2
+rcnn_in_channels: 1024
+rcnn_fc_out_channels: 2048
+rcnn_loss_cls_weight: 1
+rcnn_loss_reg_weight: 1
+rcnn_target_means: [0., 0., 0., 0.]
+rcnn_target_stds: [0.1, 0.1, 0.2, 0.2]
+rcnn_do_cls_dropout: True
+rcnn_keep_ratio: 0.2
+
+# train proposal
+rpn_proposal_nms_across_levels: False
+rpn_proposal_nms_pre: 2000
+rpn_proposal_nms_post: 2000
+rpn_proposal_max_num: 2000
+rpn_proposal_nms_thr: 0.7
+rpn_proposal_min_bbox_size: 0
+
+# test proposal
+rpn_nms_across_levels: False
+rpn_nms_pre: 1000
+rpn_nms_post: 1000
+rpn_max_num: 1000
+rpn_nms_thr: 0.7
+rpn_min_bbox_min_size: 0
+test_score_thr: 0.05
+test_iou_thr: 0.5
+test_max_per_img: 100
+test_batch_size: 1
+
+rpn_head_use_sigmoid: True
+rpn_head_weight: 1.0
+
+pcb_enable: True
+pcb_modeltype: 'resnet'             # res-like
+
+pcb_modelpath: "../../ImageNetPretrained/pth_convert/res101_ms.ckpt"
+pcb_alpha: 0.5
+pcb_upper: 1.0
+pcb_lower: 0.05
+
+# LR
+base_lr: 0.01
+warmup_iter: 0
+warmup_factor: 0.001
+warmup_method: "linear"
+warmup_gamma: 0.1
+milestones: [3200]
+sgd_momentum: 0.9
+nesterov: False
+lr_type: "dynamic"
+
+# train
+train_batch_size: 2
+loss_scale: 256
+momentum: 0.9
+weight_decay: 0.00005
+weight_decay_norm: 0.0
+bias_lr_factor: 1.0
+weight_decay_bias: 0.0001
+# 3200(pytorch max iter) * 16(bs) / 600(sample) = 86(mindspore epoch)
+epoch_size: 86
+
+
+run_eval: False
+interval: 1
+save_checkpoint: True
+save_checkpoint_epochs: 1
+keep_checkpoint_max: 1
+# pretrain和finetuning, train阶段保存目录, 其中finetuning阶段由于reqpeat的数值无法确定，必须通过sh文件传参确定
+save_checkpoint_path: "../checkpoints/coco/defrcn_det_r101/defrcn_fsod_r101_novel/fsrw-like/30shot_seed0/repeat0"
+is_pretrain: False
+is_finetune: True
+
+# Number of threads used to process the dataset in parallel
+num_parallel_workers: 4
+# Parallelize Python operations with multiple worker processes
+python_multiprocessing: True
+
+datasets_root: "../../datasets"
+
+coco_root: "../../datasets/coco"
+
+train_mindrecord_dir: "../../datasets/coco2014/MindRecord_COCO_TRAIN"
+
+test_mindrecord_dir: "../../datasets/coco2014/MindRecord_COCO_TEST"
+
+
+num_classes: 21
+prefix: ""
+
+# train.py defrcn training
+run_distribute: False
+
+dataset: 'coco'
+dataset_train: ['coco14_trainval_novel_30shot_seed0']
+dataset_test: ['coco14_test_novel']
+
+
+backbone_pretrained_path: "../../ImageNetPretrained/pkl_convert/backbone.ckpt"
+
+
+model_pretrained_path: "./checkpoints/coco/defrcn_det_r101/defrcn_det_r101_base/model_reset_remove.ckpt"
+device_id: 0
+device_num: 1
+rank_id: 0
+image_dir: ''
+
+# eval.py Defrcn evaluation
+val_data_type: 'val2014'
+eval_checkpoint_path: "../checkpoints/coco/defrcn_det_r101/defrcn_fsod_r101_novel/fsrw-like/30shot_seed0/repeat0"
+
+# export.py defrcn_export
+export_file_name: "defrcn_fsod_30shot"
+export_file_format: "MINDIR"
+export_ckpt_file: "../checkpoints/coco/defrcn_det_r101/defrcn_fsod_r101_novel/fsrw-like/30shot_seed0/repeat0/defrcn-86_30.ckpt"
+
+# preprocess.py
+input_path: ''
+
+# postprocess.py
+result_path: ''
+---
+# Config description for each option
+enable_modelarts: 'Whether training on modelarts, default: False'
+data_url: 'Dataset url for obs'
+train_url: 'Training output url for obs'
+data_path: 'Dataset path for local'
+output_path: 'Training output path for local'
+result_dir: "result files path."
+label_dir: "image file path."
+
+device_target: "device where the code will be implemented, default is Ascend"
+file_name: "output file name."
+dataset: "Dataset, either cifar10 or imagenet2012"
+parameter_server: 'Run parameter server train'
+width: 'input width'
+height: 'input height'
+enable_profiling: 'Whether enable profiling while training, default: False'
+only_create_dataset: 'If set it true, only create Mindrecord, default is false.'
+run_distribute: 'Run distribute, default is false.'
+do_train: 'Do train or not, default is true.'
+do_eval: 'Do eval or not, default is false.'
+pre_trained: 'Pretrained checkpoint path'
+device_id: 'Device id, default is 0.'
+device_num: 'Use device nums, default is 1.'
+rank_id: 'Rank id, default is 0.'
+export_file_format: 'file format'
+eval_checkpoint_path: "Checkpoint file path."
+export_ckpt_file: 'defrcn ckpt file.'
+result_path: "result file path."
+backbone: "backbone network name, options:resnet_v1_50, resnet_v1.5_50, resnet_v1_101, resnet_v1_152"
+interval: "val interval"
+
+---
+device_target: ['Ascend', 'GPU', 'CPU']
+export_file_format: ["AIR", "ONNX", "MINDIR"]
+
